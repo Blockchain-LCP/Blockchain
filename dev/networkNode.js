@@ -259,7 +259,7 @@ app.get('/block/:blockHash', function(req, res) {
 	const blockHash = req.params.blockHash;
 	const correctBlock = bitcoin.getBlock(blockHash);
 	if (correctBlock == null) {
-		return res.status(404).json({ error: "일치하는 블록이 없습니다.",  senderBalance: senderBalance });
+		return res.status(404).json({ error: "일치하는 블록이 없습니다."});
 	}else {
 		res.json({
 			block: correctBlock
@@ -273,7 +273,7 @@ app.get('/transaction/:transactionId', function(req, res) {
 	const transactionId = req.params.transactionId;
 	const trasactionData = bitcoin.getTransaction(transactionId);
 	if (trasactionData.block == null || trasactionData.transaction == null) {
-		return res.status(404).json({ error: "일치하는 거래가 없습니다.",  senderBalance: senderBalance });
+		return res.status(404).json({ error: "일치하는 거래가 없습니다."});
 	}else {
 		res.json({
 			transaction: trasactionData.transaction,
@@ -288,7 +288,7 @@ app.get('/address/:address', function(req, res) {
 	const address = req.params.address;
 	const addressData = bitcoin.getAddressData(address);
 	if (addressData.addressTransactions.length == 0) {
-		return res.status(404).json({ error: "일치하는 주소가 없습니다.",  senderBalance: senderBalance });
+		return res.status(404).json({ error: "일치하는 주소가 없습니다."});
 	}else {
 		res.json({
 			addressData: addressData
