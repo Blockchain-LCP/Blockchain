@@ -30,15 +30,18 @@ app.post('/transaction', function(req, res) {
 
 	const senderData = bitcoin.getAddressData(sender);
 	const recipientData = bitcoin.getAddressData(recipient);
-    if (!senderData) {
+    if (!senderData || sender == null) {
         return res.status(404).json({ error: '보내는 사람을 찾을 수 없습니다.' });
     }
-	if (!recipientData) {
+	if (!recipientData || recipient == null) {
         return res.status(404).json({ error: '받는 사람을 찾을 수 없습니다.' });
     }
-
+	// 송금할 돈이 없는 경우
+	if (amount == null) {
+		return res.status(404).json({ error: "송금할 돈을 입력해주세요."});
+	}
 	// 음수를 송금하려는 경우
-	if (amount < 0) {
+	if (amount < 0 ) {
 		return res.status(404).json({ error: "음수의 돈을 송금할 수 없습니다."});
 	}
 
@@ -307,10 +310,14 @@ app.get('/block-explorer', function(req, res) {
 app.post('/charge-balance', function(req, res) {
     const { amount, sender } = req.body;
 
+	if (amount == null) {
+		return res.status(404).json({ error: "송금할 돈을 입력해주세요."});
+	}
+
     // sender가 블록체인에 존재하는지 확인
     const senderData = bitcoin.getAddressData(sender);
 
-    if (!senderData) {
+    if (!senderData || sender == null) {
         return res.status(404).json({ error: '보내는 사람을 찾을 수 없습니다.' });
     }
 
