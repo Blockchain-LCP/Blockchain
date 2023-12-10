@@ -24,6 +24,32 @@ app.get('/blockchain', function (req, res) {
 // create a new transaction
 app.post('/transaction', function(req, res) {
 	const newTransaction = req.body;
+	const sender = newTransaction.sender;
+	const recipient = newTransaction.recipient;
+	const amount = newTransaction.amount;
+
+	const senderData = bitcoin.getAddressData(sender);
+	const recipientData = bitcoin.getAddressData(recipient);
+    if (!senderData) {
+        return res.status(404).json({ error: '보내는 사람을 찾을 수 없습니다.' });
+    }
+	if (!recipientData) {
+        return res.status(404).json({ error: '받는 사람을 찾을 수 없습니다.' });
+    }
+
+	// 음수를 송금하려는 경우
+	if (amount < 0) {
+		return res.status(404).json({ error: "음수의 돈을 송금할 수 없습니다."});
+	}
+
+	// 송신자의 잔고
+    const senderBalance = bitcoin.getAddressData(sender).addressBalance;
+
+    // 송신자의 잔고가 충분하지 않으면 에러
+    if (senderBalance < amount) {
+        return res.status(404).json({ error: "잔고가 부족합니다.",  senderBalance: senderBalance });
+    }
+
 	const blockIndex = bitcoin.addTransactionToPendingTransactions(newTransaction);
 	res.json({ note: `Transaction will be added in block ${blockIndex}.` });
 });
@@ -265,7 +291,26 @@ app.get('/block-explorer', function(req, res) {
 });
 
 
+// 잔고 충전
+app.post('/charge-balance', function(req, res) {
+    const { amount, sender } = req.body;
 
+    // sender가 블록체인에 존재하는지 확인
+    const senderData = bitcoin.getAddressData(sender);
+
+    if (!senderData) {
+        return res.status(404).json({ error: '보내는 사람을 찾을 수 없습니다.' });
+    }
+
+    // sender의 잔고 충전
+    const newTransaction = bitcoin.createNewTransaction(amount, "00", sender);
+    const blockIndex = bitcoin.addTransactionToPendingTransactions(newTransaction);
+
+    res.json({
+        note: `잔고가 성공적으로 충전되었습니다. 거래는 블록 ${blockIndex}에 추가됩니다.`,
+        newTransaction: newTransaction
+    });
+});
 
 
 app.listen(port, function() {

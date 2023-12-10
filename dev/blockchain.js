@@ -147,6 +147,14 @@ Blockchain.prototype.getAddressData = function(address) {
 	};
 };
 
+Blockchain.prototype.chargeBalance = function(sender, amount) {
+    const senderData = this.getAddressData(sender);
+
+	senderData.addressBalance += amount;
+
+    return { success: true};
+};
+
 
 
 
